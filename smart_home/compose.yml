@@ -16,7 +16,90 @@ services:
     labels:
       - traefik.http.routers.homeassistant.rule=Host(`ha.${URL}`)
       - traefik.http.services.homeassistant.loadbalancer.server.port=8123
+      - svc.stack=smart_home
     extra_hosts:
       - host.docker.internal:172.17.0.1
     depends_on:
       - traefik
+    profiles:
+      - smart_home
+  
+  mqtt:
+    image: eclipse-mosquitto:2.0
+    restart: unless-stopped
+    networks:
+      - mqtt
+    volumes:
+      - "${DOCKER_SERVICES_CONFIG_LOCATION}/mosquitto:/mosquitto"
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    command: "mosquitto -c /mosquitto-no-auth.conf"
+    labels:
+      - svc.stack=smart_home
+    profiles:
+      - smart_home
+
+  zigbee2mqtt:
+    container_name: zigbee2mqtt
+    restart: unless-stopped
+    image: koenkk/zigbee2mqtt
+    depends_on:
+      - mqtt
+      - traefik
+    networks:
+      - default
+      - mqtt
+    volumes:
+      - ${DOCKER_SERVICES_CONFIG_LOCATION}/zigbee2mqtt:/app/data
+      - /run/udev:/run/udev:ro
+    ports:
+      - 8080:8080
+    environment:
+      - TZ=Pacific/Auckland
+    devices:
+      # Access to Zigbee USB dongle
+      - /dev/ttyUSB0:/dev/ttyUSB0
+    labels:
+      - traefik.http.routers.zigbee2mqtt.rule=Host(`zigbee2mqtt.${INTERNAL_URL}`)
+      - traefik.http.services.zigbee2mqtt.loadbalancer.server.port=8080
+      - svc.stack=smart_home
+    profiles:
+      - smart_home
+
+  frigate:
+    container_name: frigate
+    privileged: true # this may not be necessary for all setups
+    restart: unless-stopped
+    image: ghcr.io/blakeblackshear/frigate:stable
+    shm_size: "64mb" # update for your cameras based on calculation above
+    networks:
+      - default
+      - mqtt
+    devices:
+      # Access to the USB Google Coral
+      - /dev/bus/usb:/dev/bus/usb
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DOCKER_SERVICES_CONFIG_LOCATION}/frigate/config.yml:/config/config.yml:ro
+      - ${DOCKER_SERVICES_CONFIG_LOCATION}/frigate/frigate.db:/media/frigate/frigate.db
+      - /mnt/barracuda/security_cameras:/media/frigate
+      - type: tmpfs # Optional: 1GB of memory, reduces SSD/SD Card wear
+        target: /tmp/cache
+        tmpfs:
+          size: 1000000000
+    ports:
+      - "5000:5000" # Web interface 
+      - "1935:1935" # RTMP feeds
+      - "8555:8555/tcp" # WebRTC over tcp
+      - "8555:8555/udp" # WebRTC over udp
+    labels:
+      - traefik.http.routers.frigate.rule=Host(`frigate.${INTERNAL_URL}`)
+      - traefik.http.services.frigate.loadbalancer.server.port=5000
+      - svc.stack=smart_home
+    profiles:
+      - smart_home
+
+networks:
+  mqtt:
+    name: mqtt
