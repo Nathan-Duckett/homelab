@@ -1,0 +1,55 @@
+services:
+  traefik:
+    image: traefik:2.10
+    container_name: traefik
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - default
+      - traefik_proxy
+    volumes:
+      - ${DOCKER_SERVICES_CONFIG_LOCATION}/letsencrypt:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - CLOUDFLARE_EMAIL=${EMAIL}
+      - CLOUDFLARE_DNS_API_TOKEN
+    command:
+      # - "--log.level=DEBUG"
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=true"
+      - "--entrypoints.http.address=:80"
+      # Autoredirect from http to https
+      - "--entrypoints.http.http.redirections.entryPoint.to=https"
+      - "--entrypoints.http.http.redirections.entryPoint.scheme=https"
+      # https configuration to use letsencrypt
+      - "--entrypoints.https.address=:443"
+      - "--entrypoints.https.http.tls.certResolver=letsencrypt"
+      # Public domain wildcard
+      - "--entrypoints.https.http.tls.domains[0].main=${URL}"
+      - "--entrypoints.https.http.tls.domains[0].sans=*.${URL}"
+      # Internal domain wildcard
+      - "--entrypoints.https.http.tls.domains[1].main=${INTERNAL_URL}"
+      - "--entrypoints.https.http.tls.domains[1].sans=*.${INTERNAL_URL}"
+      # Let's encrypt setup with Cloudflare DNS challenges
+      - "--certificatesresolvers.letsencrypt.acme.dnschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare"
+      - "--certificatesresolvers.letsencrypt.acme.email=${EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+
+    labels:
+      # Traefik routing for the dashboard
+      - traefik.http.routers.traefik-https.rule=Host(`traefik.${INTERNAL_URL}`)
+      - traefik.http.routers.traefik-https.service=api@internal
+      - svc.stack=common
+    extra_hosts:
+      - host.docker.internal:172.17.0.1
+
+networks:
+  default:
+    name: reverse_proxy
+  traefik_proxy:
+    external: true
+    name: traefik_proxy
