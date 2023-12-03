@@ -1,0 +1,22 @@
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: ghcr.io/home-assistant/home-assistant:stable
+    volumes:
+      - ${DOCKER_SERVICES_CONFIG_LOCATION}/homeassistant:/config
+      - /run/dbus:/run/dbus:ro
+    restart: unless-stopped
+    # This is referenced via extra_hosts in Traefik
+    network_mode: host
+    expose:
+      - 8123
+    environment:
+      - TZ=Pacific/Auckland
+    privileged: true
+    labels:
+      - traefik.http.routers.homeassistant.rule=Host(`ha.${URL}`)
+      - traefik.http.services.homeassistant.loadbalancer.server.port=8123
+    extra_hosts:
+      - host.docker.internal:172.17.0.1
+    depends_on:
+      - traefik
