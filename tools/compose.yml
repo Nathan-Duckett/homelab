@@ -1,0 +1,56 @@
+services:
+  bitwarden:
+    image: vaultwarden/server:latest
+    container_name: bitwarden
+    hostname: bitwarden.${URL}
+    restart: always
+    environment:
+      - YUBICO_CLIENT_ID=${YUBICO_CLIENT_ID}
+      - YUBICO_SECRET_KEY=${YUBICO_SECRET_KEY}
+    volumes:
+      - ~/.bitwarden:/data
+    labels:
+      - traefik.http.routers.bitwarden-ui.rule=Host(`bitwarden.${URL}`)
+      - traefik.http.routers.bitwarden-ui.entrypoints=https
+      - traefik.http.routers.bitwarden-ui.service=bitwarden-ui
+      - traefik.http.routers.bitwarden-ui.tls=true
+      - traefik.http.routers.bitwarden-ui.tls.certresolver=letsencrypt
+      - traefik.http.services.bitwarden-ui.loadbalancer.server.port=80
+      - traefik.http.routers.bitwarden-websocket.rule=Host(`bitwarden.${URL}`) && Path(`/notification/hub`)
+      - traefik.http.routers.bitwarden-websocket.service=bitwarden-websocket
+      - traefik.http.services.bitwarden-websocket.loadbalancer.server.port=3012
+      - svc.stack=tools
+    profiles:
+      - tools
+  
+  flatnotes:
+    container_name: flatnotes
+    image: dullage/flatnotes:latest
+    environment:
+      FLATNOTES_AUTH_TYPE: ${FLATNOTES_AUTH_TYPE}
+      FLATNOTES_USERNAME: ${FLATNOTES_USERNAME}
+      FLATNOTES_PASSWORD: ${FLATNOTES_PASSWORD}
+      FLATNOTES_SECRET_KEY: ${FLATNOTES_SECRET_KEY}
+    volumes:
+      - ${DOCKER_SERVICES_CONFIG_LOCATION}/flatnotes/data:/data
+    restart: unless-stopped
+    labels:
+      - traefik.http.routers.flatnotes.rule=Host(`notes.${URL}`)
+      - traefik.http.services.flatnotes.loadbalancer.server.port=8080
+      - svc.stack=tools
+    profiles:
+      - tools
+
+  uptime:
+    image: louislam/uptime-kuma:latest
+    container_name: uptime-kuma
+    hostname: up.${URL}
+    restart: unless-stopped 
+    volumes:
+      - ${DOCKER_SERVICES_CONFIG_LOCATION}/uptime-kama/data:/app/data
+    labels:
+      - traefik.http.routers.uptime.rule=Host(`up.${URL}`)
+      - traefik.http.services.uptime.loadbalancer.server.port=3001
+      - svc.stack=tools
+    profiles:
+      - tools

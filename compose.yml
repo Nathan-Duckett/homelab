@@ -2,3 +2,5 @@ include:
   - ./common/compose.yml
   - ./smart_home/compose.yml
   - ./media/compose.yml
+  - ./tools/compose.yml
+  - ./games/compose.yml

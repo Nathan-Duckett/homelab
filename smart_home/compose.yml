@@ -26,6 +26,7 @@ services:
   
   mqtt:
     image: eclipse-mosquitto:2.0
+    container_name: mqtt
     restart: unless-stopped
     networks:
       - mqtt
@@ -97,6 +98,17 @@ services:
       - traefik.http.routers.frigate.rule=Host(`frigate.${INTERNAL_URL}`)
       - traefik.http.services.frigate.loadbalancer.server.port=5000
       - svc.stack=smart_home
+    profiles:
+      - smart_home
+  
+  dhelp:
+    image: nathanduckett/dhelp:latest
+    container_name: dhelp
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - traefik.http.routers.dhelp.rule=Host(`dhelp.${INTERNAL_URL}`)
+      - traefik.http.services.dhelp.loadbalancer.server.port=4000
     profiles:
       - smart_home
 

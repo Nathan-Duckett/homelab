@@ -133,3 +133,34 @@ services:
     volumes:
       - "${MEDIA_CONFIG_LOCATION}/qBittorrent:/config:cached"
       - "${DOWNLOADS_LOCATION}:/downloads:cached"
+
+  jellyfin:
+    <<: *linuxserver-common
+    image: jellyfin/jellyfin
+    container_name: jellyfin
+    user: 1000:1000
+    volumes:
+      - ${DOCKER_SERVICES_CONFIG_LOCATION}/jellyfin/config:/config
+      - ${DOCKER_SERVICES_CONFIG_LOCATION}/jellyfin/cache:/cache
+      - ${MEDIA_LOCATION}/tv:/tv:ro
+      - ${MEDIA_LOCATION}/movies:/movies:ro
+      - ${MEDIA_LOCATION}/music:/music:ro
+    restart: "unless-stopped"
+    environment:
+      - JELLYFIN_PublishedServerUrl=https://jellyfin.${URL}
+    labels:
+      - traefik.http.routers.jellyfin.rule=Host(`jellyfin.${URL}`)
+      - traefik.http.services.jellyfin.loadbalancer.server.port=8096
+      - svc.stack=media
+  
+  dizquetv:
+    <<: *linuxserver-common
+    container_name: dizquetv
+    image: nduckett/dizquetv:1.5.0
+    volumes:
+      - ${MEDIA_CONFIG_LOCATION}/dizque:/home/node/app/.dizquetv
+    restart: unless-stopped
+    labels:
+      - traefik.http.routers.dizquetv.rule=Host(`tv.${URL}`)
+      - traefik.http.services.dizquetv.loadbalancer.server.port=8000
+      - svc.stack=media
