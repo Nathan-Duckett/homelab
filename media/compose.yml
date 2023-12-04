@@ -1,0 +1,135 @@
+x-linuxserver-common: &linuxserver-common
+  environment:
+    PUID: 1000
+    PGID: 1000
+    TZ: Pacific/Auckland
+  profiles:
+    - media
+  labels:
+    - svc.stack=media
+  restart: unless-stopped
+
+services:
+  # Sonarr installation
+  sonarr:
+    <<: *linuxserver-common
+    image: linuxserver/sonarr:latest
+    container_name: sonarr
+    volumes:
+      - ${MEDIA_CONFIG_LOCATION}/sonarr:/config
+      - ${MEDIA_LOCATION}/tv:/tv
+      - ${DOWNLOADS_LOCATION}:/downloads
+    labels:
+      - traefik.http.routers.sonarr.rule=Host(`sonarr.${INTERNAL_URL}`)
+      - traefik.http.services.sonarr.loadbalancer.server.port=8989
+  # Radarr installation
+  radarr:
+    <<: *linuxserver-common
+    image: linuxserver/radarr:develop
+    container_name: radarr
+    volumes:
+      - ${MEDIA_CONFIG_LOCATION}/radarr:/config
+      - ${MEDIA_LOCATION}/movies:/movies
+      - ${DOWNLOADS_LOCATION}:/downloads
+    labels:
+      - traefik.http.routers.radarr.rule=Host(`radarr.${INTERNAL_URL}`)
+      - traefik.http.services.radarr.loadbalancer.server.port=7878
+  # Lidarr installation
+  lidarr:
+    <<: *linuxserver-common
+    image: linuxserver/lidarr
+    container_name: lidarr
+    volumes:
+      - ${MEDIA_CONFIG_LOCATION}/lidarr:/config
+      - ${MEDIA_LOCATION}/music:/music
+      - ${DOWNLOADS_LOCATION}:/downloads
+    labels:
+      - traefik.http.routers.lidarr.rule=Host(`lidarr.${INTERNAL_URL}`)
+      - traefik.http.services.lidarr.loadbalancer.server.port=8686
+  # Readarr installation
+  readarr:
+    <<: *linuxserver-common
+    image: linuxserver/readarr:develop
+    container_name: readarr
+    volumes:
+      - ${MEDIA_CONFIG_LOCATION}/readarr:/config
+      - ${MEDIA_LOCATION}/books:/books
+      - ${DOWNLOADS_LOCATION}:/downloads
+    labels:
+      - traefik.http.routers.readarr.rule=Host(`readarr.${INTERNAL_URL}`)
+      - traefik.http.services.readarr.loadbalancer.server.port=8787
+  bazarr:
+    <<: *linuxserver-common
+    image: linuxserver/bazarr
+    container_name: bazarr
+    volumes:
+      - ${MEDIA_CONFIG_LOCATION}/bazarr:/config
+      - ${MEDIA_LOCATION}/movies:/movies
+      - ${MEDIA_LOCATION}/tv:/tv
+    labels:
+      - traefik.http.routers.bazarr.rule=Host(`bazarr.${INTERNAL_URL}`)
+      - traefik.http.services.bazarr.loadbalancer.server.port=6767
+  # Ombi installation
+  ombi:
+    <<: *linuxserver-common
+    image: linuxserver/ombi
+    container_name: ombi
+    volumes:
+      - ${MEDIA_CONFIG_LOCATION}/ombi:/config
+    labels:
+      - traefik.http.routers.ombi.rule=Host(`ombi.${INTERNAL_URL}`)
+      - traefik.http.services.ombi.loadbalancer.server.port=3579
+
+  overseerr:
+    <<: *linuxserver-common
+    image: sctx/overseerr:latest
+    container_name: overseerr
+    volumes:
+      - ${MEDIA_CONFIG_LOCATION}/overseerr:/app/config
+    labels:
+      - traefik.http.routers.overseerr.rule=Host(`overseerr.${URL}`)
+      - traefik.http.services.overseerr.loadbalancer.server.port=5055
+
+  # Jackett installation
+  jackett:
+    <<: *linuxserver-common
+    image: linuxserver/jackett
+    container_name: jackett
+    volumes:
+      - ${MEDIA_CONFIG_LOCATION}/jackett:/config
+      - ${DOWNLOADS_LOCATION}:/downloads
+    labels:
+      - traefik.http.routers.jackett.rule=Host(`jackett.${INTERNAL_URL}`)
+      - traefik.http.services.jackett.loadbalancer.server.port=9117
+  # Tautulli installation
+  tautulli:
+    <<: *linuxserver-common
+    image: linuxserver/tautulli
+    container_name: tautulli
+    volumes:
+      - ${MEDIA_CONFIG_LOCATION}/tautulli:/config
+      - /var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Logs:/logs
+    labels:
+      - traefik.http.routers.tautulli.rule=Host(`tautulli.${INTERNAL_URL}`)
+      - traefik.http.services.tautulli.loadbalancer.server.port=8181
+  # qBittorrent VPN installation
+  qbittorrent:
+    <<: *linuxserver-common
+    image: "markusmcnugen/qbittorrentvpn"
+    container_name: "qbittorrent"
+    privileged: true
+    environment:
+      - "VPN_ENABLED=yes"
+      - "LAN_NETWORK=192.168.1.0/24"
+      - "NAME_SERVERS=1.1.1.1,8.8.8.8"
+      - PUID=1000
+      - GUID=1000
+    ports:
+      - 8999:8999
+      - 8999:8999/udp
+    labels:
+      - traefik.http.routers.qbittorrent.rule=Host(`qbittorrent.${INTERNAL_URL}`)
+      - traefik.http.services.qbittorrent.loadbalancer.server.port=8080
+    volumes:
+      - "${MEDIA_CONFIG_LOCATION}/qBittorrent:/config:cached"
+      - "${DOWNLOADS_LOCATION}:/downloads:cached"
