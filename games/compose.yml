@@ -10,7 +10,7 @@ services:
     environment:
       MOTD: Kim is annoying
       EULA: "TRUE"
-      VERSION: 1.20.2
+      VERSION: 1.20.4
       PVP: "false"
     profiles:
       - games
