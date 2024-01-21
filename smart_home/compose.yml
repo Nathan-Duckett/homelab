@@ -19,8 +19,6 @@ services:
       - svc.stack=smart_home
     extra_hosts:
       - host.docker.internal:172.17.0.1
-    depends_on:
-      - traefik
     profiles:
       - smart_home
   
@@ -47,7 +45,6 @@ services:
     image: koenkk/zigbee2mqtt
     depends_on:
       - mqtt
-      - traefik
     networks:
       - default
       - mqtt
@@ -104,6 +101,7 @@ services:
   dhelp:
     image: nathanduckett/dhelp:latest
     container_name: dhelp
+    restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
