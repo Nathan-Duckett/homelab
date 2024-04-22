@@ -79,8 +79,7 @@ services:
       - /dev/bus/usb:/dev/bus/usb
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${DOCKER_SERVICES_CONFIG_LOCATION}/frigate/config.yml:/config/config.yml:ro
-      - ${DOCKER_SERVICES_CONFIG_LOCATION}/frigate/frigate.db:/media/frigate/frigate.db
+      - ${DOCKER_SERVICES_CONFIG_LOCATION}/frigate/config:/config
       - /mnt/barracuda/security_cameras:/media/frigate
       - type: tmpfs # Optional: 1GB of memory, reduces SSD/SD Card wear
         target: /tmp/cache
