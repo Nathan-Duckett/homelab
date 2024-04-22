@@ -12,5 +12,12 @@ services:
       EULA: "TRUE"
       VERSION: 1.20.4
       PVP: "false"
+      ENABLE_WHITELIST: "true"
+      WHITELIST: MuffinsDaNarwhal,Allambee20,TheGuildedDodo,Kefe_Aikae
+    healthcheck:
+      test: mc-health
+      start_period: 1m
+      interval: 5s
+      retries: 20 
     profiles:
       - games
