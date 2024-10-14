@@ -156,7 +156,7 @@ services:
   dizquetv:
     <<: *linuxserver-common
     container_name: dizquetv
-    image: nduckett/dizquetv:1.5.0
+    image: vexorian/dizquetv:latest
     volumes:
       - ${MEDIA_CONFIG_LOCATION}/dizque:/home/node/app/.dizquetv
     restart: unless-stopped
