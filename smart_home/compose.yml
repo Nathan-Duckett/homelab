@@ -14,7 +14,7 @@ services:
       - TZ=Pacific/Auckland
     privileged: true
     labels:
-      - traefik.http.routers.homeassistant.rule=Host(`ha.${URL}`)
+      - traefik.http.routers.homeassistant.rule=Host(`ha.${URL}`) || Host(`ha.${INTERNAL_URL}`)
       - traefik.http.services.homeassistant.loadbalancer.server.port=8123
       - svc.stack=smart_home
     extra_hosts:
