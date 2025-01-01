@@ -10,10 +10,10 @@ services:
     environment:
       MOTD: Kim is annoying
       EULA: "TRUE"
-      VERSION: 1.20.4
+      # VERSION: 1.20.5
       PVP: "false"
       ENABLE_WHITELIST: "true"
-      WHITELIST: MuffinsDaNarwhal,Allambee20,TheGuildedDodo,Kefe_Aikae
+      WHITELIST: MuffinsDaNarwhal,Allambee20,TheGuildedDodo,Kefe_Aikae,tigerattacker,OiM8itzCait,TheJuanNachO
     healthcheck:
       test: mc-health
       start_period: 1m
