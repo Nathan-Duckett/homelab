@@ -140,26 +140,30 @@ services:
     profiles:
       - tools
   
-  pocket-id:
-    image: stonith404/pocket-id
-    restart: unless-stopped
-    environment:
-      PUBLIC_APP_URL: https://pocket-id.${URL}
-      TRUST_PROXY: true
-      MAXMIND_LICENSE_KEY: 
-      PUID: 1000
-      PGID: 1000
+  bytestash:
+    image: "ghcr.io/jordan-dalby/bytestash:latest"
+    restart: always
     volumes:
-      - ${DOCKER_SERVICES_CONFIG_LOCATION}/pocket-id:/app/backend/data
-    healthcheck:
-      test: "curl -f http://localhost/health"
-      interval: 1m30s
-      timeout: 5s
-      retries: 2
-      start_period: 10s
+      - ${DOCKER_SERVICES_CONFIG_LOCATION}/bytestash:/data/snippets
+    environment:
+      # See https://github.com/jordan-dalby/ByteStash/wiki/FAQ#environment-variables
+      JWT_SECRET: ${BYTESTASH_JWT_SECRET}
+      TOKEN_EXPIRY: 24h
+      ALLOW_NEW_ACCOUNTS: "false"
+      DEBUG: "false"
+      DISABLE_ACCOUNTS: "false"
+      # This forces it to only use Pocket-ID for auth
+      DISABLE_INTERNAL_ACCOUNTS: "true"
+
+      # See https://github.com/jordan-dalby/ByteStash/wiki/Single-Sign%E2%80%90on-Setup for more info
+      OIDC_ENABLED: "true"
+      OIDC_DISPLAY_NAME: ${POCKET_ID_OIDC_DISPLAY_NAME}
+      OIDC_ISSUER_URL: ${POCKET_ID_URL}
+      OIDC_CLIENT_ID: ${BYTESTASH_OIDC_CLIENT_ID}
+      OIDC_CLIENT_SECRET: ${BYTESTASH_OIDC_CLIENT_SECRET}
     labels:
-      - traefik.http.routers.pocket-id.rule=Host(`pocket-id.${URL}`)
+      - traefik.http.routers.bytestash.rule=Host(`bytestash.${URL}`)
       # Use the caddy port which proxies both the frontend and backend
-      - traefik.http.services.pocket-id.loadbalancer.server.port=80
+      - traefik.http.services.bytestash.loadbalancer.server.port=5000
     profiles:
       - tools
