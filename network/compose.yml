@@ -85,7 +85,6 @@ services:
       - DOMAIN1_ZONE_ID=${ZONE_ID}
       - DOMAIN1_PROXIED=true
 
-      - CF_EMAIL=${EMAIL}
       - CF_TOKEN=${CLOUDFLARE_DNS_API_TOKEN}
     restart: always
 
