@@ -61,6 +61,8 @@ services:
     container_name: cloudflared-companion
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - traefik_proxy
     environment:
       - TIMEZONE=Pacific/Auckland
 
