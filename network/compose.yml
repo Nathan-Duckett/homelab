@@ -46,6 +46,16 @@ services:
     extra_hosts:
       - host.docker.internal:172.17.0.1
 
+  tunnel:
+    container_name: cloudflared-tunnel
+    image: cloudflare/cloudflared
+    restart: unless-stopped
+    command: tunnel run
+    networks:
+      - traefik_proxy
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+
 networks:
   traefik_proxy:
     external: true
