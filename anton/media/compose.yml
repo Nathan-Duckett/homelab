@@ -20,7 +20,7 @@ services:
       - ${MEDIA_LOCATION}/tv:/tv
       - ${DOWNLOADS_LOCATION}:/downloads
     labels:
-      - traefik.http.routers.sonarr.rule=Host(`sonarr.${INTERNAL_URL}`)
+      - traefik.http.routers.sonarr.rule=Host(`sonarr.${URL}`)
       - traefik.http.services.sonarr.loadbalancer.server.port=8989
   # Radarr installation
   radarr:
@@ -152,15 +152,31 @@ services:
       - traefik.http.routers.jellyfin.rule=Host(`jellyfin.${URL}`)
       - traefik.http.services.jellyfin.loadbalancer.server.port=8096
       - svc.stack=media
-  
+
   dizquetv:
     <<: *linuxserver-common
     container_name: dizquetv
     image: vexorian/dizquetv:latest
     volumes:
-      - ${MEDIA_CONFIG_LOCATION}/dizque:/home/node/app/.dizquetv
+      - ${MEDIA_CONFIG_LOCATION}/dizque2:/home/node/app/.dizquetv
     restart: unless-stopped
+    ports:
+      - 30140:8000
     labels:
-      - traefik.http.routers.dizquetv.rule=Host(`tv.${URL}`)
+      - traefik.http.routers.dizquetv.rule=Host(`tv.${INTERNAL_URL}`)
       - traefik.http.services.dizquetv.loadbalancer.server.port=8000
+      - svc.stack=media
+
+  tunarr:
+    <<: *linuxserver-common
+    container_name: tunarr
+    image: chrisbenincasa/tunarr:latest
+    volumes:
+      - ${MEDIA_CONFIG_LOCATION}/tunarr:/config/tunarr
+    restart: unless-stopped
+    ports:
+      - 30120:8000
+    labels:
+      - traefik.http.routers.tunarr.rule=Host(`tunarr.${INTERNAL_URL}`)
+      - traefik.http.services.tunarr.loadbalancer.server.port=8000
       - svc.stack=media
