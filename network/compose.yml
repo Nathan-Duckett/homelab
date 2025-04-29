@@ -73,7 +73,7 @@ services:
       - TRAEFIK_VERSION=2
       - RC_TYPE=CNAME
 
-      - TARGET_DOMAIN=${URL}
+      - TARGET_DOMAIN=tunnel.${URL}
       - REFRESH_ENTRIES=TRUE
 
       - ENABLE_TRAEFIK_POLL=TRUE
