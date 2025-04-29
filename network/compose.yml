@@ -58,6 +58,7 @@ services:
   
   cloudflare-companion:
     image: ghcr.io/tiredofit/docker-traefik-cloudflare-companion:latest
+    container_name: cloudflared-companion
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
