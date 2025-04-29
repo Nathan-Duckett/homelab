@@ -1,0 +1,19 @@
+services:
+  uptime:
+    image: louislam/uptime-kuma:latest
+    container_name: uptime-kuma
+    restart: unless-stopped 
+    volumes:
+      - ${DOCKER_SERVICES_CONFIG_LOCATION}/uptime-kama/data:/app/data
+    labels:
+      - traefik.http.routers.uptime.rule=Host(`up.${URL}`) || Host(`up.${INTERNAL_URL}`)
+      - traefik.http.services.uptime.loadbalancer.server.port=3001
+      - svc.stack=tools
+
+networks:
+  default:
+    name: traefik_proxy
+    external: true
+  traefik_proxy:
+    external: true
+    name: traefik_proxy
