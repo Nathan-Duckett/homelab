@@ -69,14 +69,15 @@ services:
       - LOG_TYPE=CONSOLE
       - LOG_LEVEL=INFO
 
-      - TRAEFIK_VERSION=3
+      # Uses Traefik 3 but the label format is v2
+      - TRAEFIK_VERSION=2
       - RC_TYPE=CNAME
 
       - TARGET_DOMAIN=${URL}
       - REFRESH_ENTRIES=TRUE
 
       - ENABLE_TRAEFIK_POLL=TRUE
-      - TRAEFIK_POLL_URL=https://traefik/api
+      - TRAEFIK_POLL_URL=https://traefik.${INTERNAL_URL}/api
       - TRAEFIK_FILTER_LABEL=traefik.constraint
       - TRAEFIK_FILTER=proxy-public
 
