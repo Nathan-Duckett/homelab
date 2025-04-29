@@ -55,6 +55,32 @@ services:
       - traefik_proxy
     environment:
       - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+  
+  cloudflare-companion:
+    image: ghcr.io/tiredofit/docker-traefik-cloudflare-companion:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - TIMEZONE=Pacific/Auckland
+
+      - LOG_TYPE=CONSOLE
+      - LOG_LEVEL=INFO
+
+      - TRAEFIK_VERSION=3
+      - RC_TYPE=CNAME
+
+      - TARGET_DOMAIN=${URL}
+      - REFRESH_ENTRIES=TRUE
+
+      - ENABLE_TRAEFIK_POLL=TRUE
+      - TRAEFIK_POLL_URL=https://traefik/api
+      - TRAEFIK_FILTER_LABEL=traefik.constraint
+      - TRAEFIK_FILTER=proxy-public
+
+      - DOMAIN1=${URL}
+      - DOMAIN1_ZONE_ID=${ZONE_ID}
+      - DOMAIN1_PROXIED=TRUE
+    restart: always
 
 networks:
   traefik_proxy:

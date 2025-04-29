@@ -9,6 +9,7 @@ services:
       - traefik.http.routers.uptime.rule=Host(`up.${URL}`) || Host(`up.${INTERNAL_URL}`)
       - traefik.http.services.uptime.loadbalancer.server.port=3001
       - svc.stack=tools
+      - traefik.constraint=proxy-public
 
 networks:
   default:
