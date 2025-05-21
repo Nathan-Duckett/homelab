@@ -69,6 +69,16 @@ services:
     labels:
       - traefik.http.routers.bazarr.rule=Host(`bazarr.${INTERNAL_URL}`)
       - traefik.http.services.bazarr.loadbalancer.server.port=6767
+    
+  huntarr:
+    <<: *linuxserver-common
+    image: huntarr/huntarr:latest
+    container_name: huntarr
+    volumes:
+      - ${MEDIA_CONFIG_LOCATION}/huntarr:/config
+    labels:
+      - traefik.http.routers.huntarr.rule=Host(`huntarr.${INTERNAL_URL}`)
+      - traefik.http.services.huntarr.loadbalancer.server.port=9705
   # Ombi installation
   ombi:
     <<: *linuxserver-common
