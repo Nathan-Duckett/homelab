@@ -190,3 +190,15 @@ services:
       - traefik.http.routers.tunarr.rule=Host(`tunarr.${INTERNAL_URL}`)
       - traefik.http.services.tunarr.loadbalancer.server.port=8000
       - svc.stack=media
+
+  maintainerr:
+    <<: *linuxserver-common
+    image: ghcr.io/maintainerr/maintainerr:latest
+    container_name: maintainerr
+    user: 1000:1000
+    volumes:
+      - ${MEDIA_CONFIG_LOCATION}/maintainerr:/opt/data
+    labels:
+      - traefik.http.routers.maintainerr.rule=Host(`maintainerr.${INTERNAL_URL}`)
+      - traefik.http.services.maintainerr.loadbalancer.server.port=6246
+      - svc.stack=media
