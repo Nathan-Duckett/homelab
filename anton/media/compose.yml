@@ -168,7 +168,7 @@ services:
     container_name: dizquetv
     image: vexorian/dizquetv:latest
     volumes:
-      - ${MEDIA_CONFIG_LOCATION}/dizque2:/home/node/app/.dizquetv
+      - ${MEDIA_CONFIG_LOCATION}/dizquetv:/home/node/app/.dizquetv
     restart: unless-stopped
     ports:
       - 30140:8000
