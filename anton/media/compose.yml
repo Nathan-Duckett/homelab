@@ -202,3 +202,18 @@ services:
       - traefik.http.routers.maintainerr.rule=Host(`maintainerr.${INTERNAL_URL}`)
       - traefik.http.services.maintainerr.loadbalancer.server.port=6246
       - svc.stack=media
+
+  plex:
+    <<: *linuxserver-common
+    container_name: plex
+    image: plexinc/pms-docker:latest
+    network_mode: host
+    volumes:
+      - ${DOCKER_SERVICES_CONFIG_LOCATION}/plex:/config
+      - ${MEDIA_LOCATION}/tv:/data/tv:ro
+      - ${MEDIA_LOCATION}/movies:/data/movies:ro
+      - ${MEDIA_LOCATION}/music:/data/music:ro
+      - ${MEDIA_LOCATION}/music_videos:/data/music_videos:ro
+      - ${PICTURES_LOCATION}:/data/pictures:ro
+    devices:
+     - /dev/dri:/dev/dri
