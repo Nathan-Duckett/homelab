@@ -16,7 +16,7 @@ services:
     image: linuxserver/sonarr:latest
     container_name: sonarr
     volumes:
-      - ${MEDIA_CONFIG_LOCATION}/sonarr:/config
+      - ${MEDIA_CONFIG_LOCATION}/sonarr/sonarr:/config
       - ${MEDIA_LOCATION}/tv:/tv
       - ${DOWNLOADS_LOCATION}:/downloads
     labels:
@@ -28,7 +28,7 @@ services:
     image: linuxserver/radarr:develop
     container_name: radarr
     volumes:
-      - ${MEDIA_CONFIG_LOCATION}/radarr:/config
+      - ${MEDIA_CONFIG_LOCATION}/radarr/radarr:/config
       - ${MEDIA_LOCATION}/movies:/movies
       - ${DOWNLOADS_LOCATION}:/downloads
     labels:
@@ -40,62 +40,40 @@ services:
     image: linuxserver/lidarr
     container_name: lidarr
     volumes:
-      - ${MEDIA_CONFIG_LOCATION}/lidarr:/config
+      - ${MEDIA_CONFIG_LOCATION}/lidarr/lidarr:/config
       - ${MEDIA_LOCATION}/music:/music
       - ${DOWNLOADS_LOCATION}:/downloads
     labels:
       - traefik.http.routers.lidarr.rule=Host(`lidarr.${INTERNAL_URL}`)
       - traefik.http.services.lidarr.loadbalancer.server.port=8686
-  # Readarr installation
-  readarr:
-    <<: *linuxserver-common
-    image: linuxserver/readarr:develop
-    container_name: readarr
-    volumes:
-      - ${MEDIA_CONFIG_LOCATION}/readarr:/config
-      - ${MEDIA_LOCATION}/books:/books
-      - ${DOWNLOADS_LOCATION}:/downloads
-    labels:
-      - traefik.http.routers.readarr.rule=Host(`readarr.${INTERNAL_URL}`)
-      - traefik.http.services.readarr.loadbalancer.server.port=8787
   bazarr:
     <<: *linuxserver-common
     image: linuxserver/bazarr
     container_name: bazarr
     volumes:
-      - ${MEDIA_CONFIG_LOCATION}/bazarr:/config
+      - ${MEDIA_CONFIG_LOCATION}/bazarr/bazarr:/config
       - ${MEDIA_LOCATION}/movies:/movies
       - ${MEDIA_LOCATION}/tv:/tv
     labels:
       - traefik.http.routers.bazarr.rule=Host(`bazarr.${INTERNAL_URL}`)
       - traefik.http.services.bazarr.loadbalancer.server.port=6767
     
-  huntarr:
-    <<: *linuxserver-common
-    image: huntarr/huntarr:latest
-    container_name: huntarr
-    volumes:
-      - ${MEDIA_CONFIG_LOCATION}/huntarr:/config
-    labels:
-      - traefik.http.routers.huntarr.rule=Host(`huntarr.${INTERNAL_URL}`)
-      - traefik.http.services.huntarr.loadbalancer.server.port=9705
-  # Ombi installation
-  ombi:
-    <<: *linuxserver-common
-    image: linuxserver/ombi
-    container_name: ombi
-    volumes:
-      - ${MEDIA_CONFIG_LOCATION}/ombi:/config
-    labels:
-      - traefik.http.routers.ombi.rule=Host(`ombi.${INTERNAL_URL}`)
-      - traefik.http.services.ombi.loadbalancer.server.port=3579
+  # huntarr:
+  #   <<: *linuxserver-common
+  #   image: huntarr/huntarr:latest
+  #   container_name: huntarr
+  #   volumes:
+  #     - ${MEDIA_CONFIG_LOCATION}/huntarr:/config
+  #   labels:
+  #     - traefik.http.routers.huntarr.rule=Host(`huntarr.${INTERNAL_URL}`)
+  #     - traefik.http.services.huntarr.loadbalancer.server.port=9705
 
   overseerr:
     <<: *linuxserver-common
     image: sctx/overseerr:latest
     container_name: overseerr
     volumes:
-      - ${MEDIA_CONFIG_LOCATION}/overseerr:/app/config
+      - ${MEDIA_CONFIG_LOCATION}/overseerr/overseerr:/app/config
     labels:
       - traefik.http.routers.overseerr.rule=Host(`overseerr.${URL}`)
       - traefik.http.services.overseerr.loadbalancer.server.port=5055
@@ -106,7 +84,7 @@ services:
     image: linuxserver/jackett
     container_name: jackett
     volumes:
-      - ${MEDIA_CONFIG_LOCATION}/jackett:/config
+      - ${MEDIA_CONFIG_LOCATION}/jackett/jackett:/config
       - ${DOWNLOADS_LOCATION}:/downloads
     labels:
       - traefik.http.routers.jackett.rule=Host(`jackett.${INTERNAL_URL}`)
@@ -117,7 +95,7 @@ services:
     image: linuxserver/tautulli
     container_name: tautulli
     volumes:
-      - ${MEDIA_CONFIG_LOCATION}/tautulli:/config
+      - ${MEDIA_CONFIG_LOCATION}/tautulli/tautulli:/config
       - /var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Logs:/logs
     labels:
       - traefik.http.routers.tautulli.rule=Host(`tautulli.${INTERNAL_URL}`)
@@ -130,10 +108,10 @@ services:
     privileged: true
     environment:
       - "VPN_ENABLED=yes"
-      - "LAN_NETWORK=192.168.1.0/24"
+      - "LAN_NETWORK=192.168.50.0/24"
       - "NAME_SERVERS=1.1.1.1,8.8.8.8"
       - PUID=1000
-      - GUID=1000
+      - PGID=1000
     ports:
       - 8999:8999
       - 8999:8999/udp
@@ -141,27 +119,8 @@ services:
       - traefik.http.routers.qbittorrent.rule=Host(`qbittorrent.${INTERNAL_URL}`)
       - traefik.http.services.qbittorrent.loadbalancer.server.port=8080
     volumes:
-      - "${MEDIA_CONFIG_LOCATION}/qBittorrent:/config:cached"
+      - "${MEDIA_CONFIG_LOCATION}/qBittorrent/qBittorrent:/config:cached"
       - "${DOWNLOADS_LOCATION}:/downloads:cached"
-
-  jellyfin:
-    <<: *linuxserver-common
-    image: jellyfin/jellyfin
-    container_name: jellyfin
-    user: 1000:1000
-    volumes:
-      - ${DOCKER_SERVICES_CONFIG_LOCATION}/jellyfin/config:/config
-      - ${DOCKER_SERVICES_CONFIG_LOCATION}/jellyfin/cache:/cache
-      - ${MEDIA_LOCATION}/tv:/tv:ro
-      - ${MEDIA_LOCATION}/movies:/movies:ro
-      - ${MEDIA_LOCATION}/music:/music:ro
-    restart: "unless-stopped"
-    environment:
-      - JELLYFIN_PublishedServerUrl=https://jellyfin.${URL}
-    labels:
-      - traefik.http.routers.jellyfin.rule=Host(`jellyfin.${URL}`)
-      - traefik.http.services.jellyfin.loadbalancer.server.port=8096
-      - svc.stack=media
 
   dizquetv:
     <<: *linuxserver-common
@@ -177,27 +136,13 @@ services:
       - traefik.http.services.dizquetv.loadbalancer.server.port=8000
       - svc.stack=media
 
-  tunarr:
-    <<: *linuxserver-common
-    container_name: tunarr
-    image: chrisbenincasa/tunarr:latest
-    volumes:
-      - ${MEDIA_CONFIG_LOCATION}/tunarr:/config/tunarr
-    restart: unless-stopped
-    ports:
-      - 30120:8000
-    labels:
-      - traefik.http.routers.tunarr.rule=Host(`tunarr.${INTERNAL_URL}`)
-      - traefik.http.services.tunarr.loadbalancer.server.port=8000
-      - svc.stack=media
-
   maintainerr:
     <<: *linuxserver-common
     image: ghcr.io/maintainerr/maintainerr:latest
     container_name: maintainerr
     user: 1000:1000
     volumes:
-      - ${MEDIA_CONFIG_LOCATION}/maintainerr:/opt/data
+      - ${MEDIA_CONFIG_LOCATION}/maintainerr/maintainerr:/opt/data
     labels:
       - traefik.http.routers.maintainerr.rule=Host(`maintainerr.${INTERNAL_URL}`)
       - traefik.http.services.maintainerr.loadbalancer.server.port=6246
