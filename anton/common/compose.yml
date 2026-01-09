@@ -46,6 +46,8 @@ services:
       - svc.stack=common
     extra_hosts:
       - host.docker.internal:172.17.0.1
+    profiles:
+      - common
 
 networks:
   default:
