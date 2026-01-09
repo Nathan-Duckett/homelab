@@ -4,3 +4,4 @@ include:
   - ./media/compose.yml
   - ./tools/compose.yml
   - ./games/compose.yml
+  - ./immich/compose.yml
