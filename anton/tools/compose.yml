@@ -83,6 +83,7 @@ services:
       - tools
 
   httpbin:
+    container_name: httpbin
     image: kennethreitz/httpbin:latest
     restart: unless-stopped
     labels:
