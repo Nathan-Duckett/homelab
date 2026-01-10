@@ -82,44 +82,6 @@ services:
     profiles:
       - tools
 
-  # Paperless-ngx
-  paperless-redis:
-    container_name: paperless_redis
-    image: docker.io/library/redis:7
-    restart: unless-stopped
-    volumes:
-      - ${DOCKER_SERVICES_CONFIG_LOCATION}/paperless/redis:/data
-    profiles:
-      - tools
-
-  paperless-web:
-    container_name: paperless_web
-    image: ghcr.io/paperless-ngx/paperless-ngx:latest
-    restart: unless-stopped
-    depends_on:
-      - paperless-redis
-    healthcheck:
-      test: ["CMD", "curl", "-fs", "-S", "--max-time", "2", "http://localhost:8000"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    volumes:
-      - ${DOCKER_SERVICES_CONFIG_LOCATION}/paperless/data:/usr/src/paperless/data
-      - ${DOCKER_SERVICES_CONFIG_LOCATION}/paperless/media:/usr/src/paperless/media
-      - ${DOCKER_SERVICES_CONFIG_LOCATION}/paperless/export:/usr/src/paperless/export
-      - ${DOCKER_SERVICES_CONFIG_LOCATION}/paperless/consume:/usr/src/paperless/consume
-    environment:
-      PAPERLESS_REDIS: redis://paperless-redis:6379
-      PAPERLESS_URL: https://paperless.${URL}
-      PAPERLESS_TIMEZONE: Pacific/Auckland
-      PAPERLESS_SECRET_KEY: ${PAPERLESS_SECRET_KEY}
-    labels:
-      - traefik.http.routers.paperless.rule=Host(`paperless.${URL}`)
-      - traefik.http.services.paperless.loadbalancer.server.port=8000
-      - svc.stack=tools
-    profiles:
-      - tools
-
   httpbin:
     image: kennethreitz/httpbin:latest
     restart: unless-stopped

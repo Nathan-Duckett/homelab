@@ -5,3 +5,4 @@ include:
   - ./tools/compose.yml
   - ./games/compose.yml
   - ./immich/compose.yml
+  - ./paperless/compose.yml
