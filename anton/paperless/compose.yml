@@ -29,6 +29,16 @@ services:
       PAPERLESS_URL: https://paperless.${URL}
       PAPERLESS_TIMEZONE: Pacific/Auckland
       PAPERLESS_SECRET_KEY: ${PAPERLESS_SECRET_KEY}
+      PAPERLESS_ENABLE_ALLAUTH: true
+      PAPERLESS_APPS: allauth.socialaccount.providers.openid_connect
+      PAPERLESS_AUTO_LOGIN: true
+      PAPERLESS_AUTO_CREATE: true
+      PAPERLESS_SOCIAL_AUTO_SIGNUP: true
+      PAPERLESS_REDIRECT_LOGIN_TO_SSO: true
+      PAPERLESS_LOGOUT_REDIRECT_URL: ${POCKET_ID_URL}/api/oidc/end-session
+      PAPERLESS_SOCIALACCOUNT_PROVIDERS: ${PAPERLESS_SOCIALACCOUNT_PROVIDERS}
+      # Set me to false to disable SSO login and fallback to saved password in Bitwarden
+      PAPERLESS_DISABLE_REGULAR_LOGIN: true
     labels:
       - traefik.http.routers.paperless.rule=Host(`paperless.${URL}`)
       - traefik.http.services.paperless.loadbalancer.server.port=8000
