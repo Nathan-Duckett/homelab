@@ -129,19 +129,6 @@ services:
     profiles:
       - tools
 
-  silverbullet:
-    image: zefhemel/silverbullet
-    restart: unless-stopped
-    environment:
-      SB_USER: ${SB_USER}
-    volumes:
-      - ${DOCKER_SERVICES_CONFIG_LOCATION}/silverbullet:/space
-    labels:
-      - traefik.http.routers.silverbullet.rule=Host(`sb.${URL}`)
-      - traefik.http.services.silverbullet.loadbalancer.server.port=3000
-    profiles:
-      - tools
-  
   bytestash:
     image: "ghcr.io/jordan-dalby/bytestash:latest"
     restart: always
