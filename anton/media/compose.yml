@@ -162,3 +162,6 @@ services:
       - ${PICTURES_LOCATION}:/data/pictures:ro
     devices:
      - /dev/dri:/dev/dri
+    labels:
+      - traefik.http.routers.plex.rule=Host(`plex.${URL}`)
+      - traefik.http.services.plex.loadbalancer.server.port=32400
